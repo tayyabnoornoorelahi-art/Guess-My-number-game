@@ -1,0 +1,940 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guess My Number!</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css?family=Press+Start+2P&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: inherit;
+        }
+
+        html {
+            font-size: 62.5%;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Press Start 2P', sans-serif;
+            color: #eee;
+            background-color: #222;
+            /* background-color: #60b347; */
+        }
+
+        /* LAYOUT */
+        header {
+            position: relative;
+            height: 35vh;
+            border-bottom: 7px solid #eee;
+        }
+
+        main {
+            height: 65vh;
+            color: #eee;
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+        }
+
+        .left {
+            width: 52rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .right {
+            width: 52rem;
+            font-size: 2rem;
+        }
+
+        /* ELEMENTS STYLE */
+        h1 {
+            font-size: 4rem;
+            text-align: center;
+            position: absolute;
+            width: 100%;
+            top: 52%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .number {
+            background: #eee;
+            color: #333;
+            font-size: 6rem;
+            width: 15rem;
+            padding: 3rem 0rem;
+            text-align: center;
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translate(-50%, 50%);
+        }
+
+        .between {
+            font-size: 1.4rem;
+            position: absolute;
+            top: 2rem;
+            right: 2rem;
+        }
+
+        .again {
+            position: absolute;
+            top: 2rem;
+            left: 2rem;
+        }
+
+        .guess {
+            background: none;
+            border: 4px solid #eee;
+            font-family: inherit;
+            color: inherit;
+            font-size: 5rem;
+            padding: 2.5rem;
+            width: 25rem;
+            text-align: center;
+            display: block;
+            margin-bottom: 3rem;
+        }
+
+        .btn {
+            border: none;
+            background-color: #eee;
+            color: #222;
+            font-size: 2rem;
+            font-family: inherit;
+            padding: 2rem 3rem;
+            cursor: pointer;
+        }
+
+        .btn:hover {
+            background-color: #ccc;
+        }
+
+        .message {
+            margin-bottom: 8rem;
+            height: 3rem;
+        }
+
+        .label-score {
+            margin-bottom: 2rem;
+        }
+
+        /* Leaderboard button - ONLY ADDITION */
+        .leaderboard-btn {
+            position: absolute;
+            top: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            border: none;
+            background-color: #eee;
+            color: #222;
+            font-size: 1.4rem;
+            font-family: inherit;
+            padding: 1.5rem 2.5rem;
+            cursor: pointer;
+            z-index: 10;
+        }
+
+        .leaderboard-btn:hover {
+            background-color: #ccc;
+        }
+
+        /* Popup Styles - Hidden by default */
+        .popup {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            z-index: 100;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .popup-content {
+            background-color: #222;
+            padding: 4rem;
+            border: 5px solid #eee;
+            max-width: 80rem;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .popup h2 {
+            font-size: 2.5rem;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .popup p {
+            font-size: 1.6rem;
+            margin-bottom: 2rem;
+            line-height: 1.5;
+        }
+
+        .popup input {
+            font-family: inherit;
+            font-size: 2rem;
+            padding: 1.5rem;
+            width: 100%;
+            margin-bottom: 2rem;
+            background-color: #333;
+            color: #eee;
+            border: 3px solid #eee;
+            text-align: center;
+        }
+
+        .popup button {
+            display: block;
+            margin: 0 auto;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 1rem;
+            right: 1.5rem;
+            background: none;
+            border: none;
+            color: #eee;
+            font-size: 3rem;
+            cursor: pointer;
+        }
+
+        /* Leaderboard table */
+        .leaderboard-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 2rem;
+            font-size: 1.4rem;
+        }
+
+        .leaderboard-table th {
+            background-color: #333;
+            padding: 1rem;
+            text-align: center;
+            border: 2px solid #555;
+        }
+
+        .leaderboard-table td {
+            padding: 1rem;
+            text-align: center;
+            border: 2px solid #555;
+        }
+
+        .leaderboard-table tr:nth-child(even) {
+            background-color: #2a2a2a;
+        }
+
+        .empty-leaderboard {
+            font-size: 1.6rem;
+            text-align: center;
+            padding: 2rem;
+            color: #aaa;
+            font-style: italic;
+        }
+
+        /* Tabs for leaderboard */
+        .tabs {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 2rem;
+            border-bottom: 2px solid #555;
+        }
+
+        .tab {
+            padding: 1rem 2rem;
+            cursor: pointer;
+            font-size: 1.6rem;
+            background: none;
+            border: none;
+            color: #eee;
+            border-bottom: 2px solid transparent;
+            margin-bottom: -2px;
+        }
+
+        .tab.active {
+            border-bottom: 2px solid #eee;
+            color: #fff;
+        }
+
+        .tab:hover {
+            color: #ccc;
+        }
+
+        /* Game details */
+        .game-details {
+            font-size: 1.4rem;
+            margin-top: 1rem;
+            padding: 1rem;
+            background-color: #2a2a2a;
+            border-radius: 5px;
+        }
+
+        .win {
+            color: #60b347;
+        }
+
+        .lose {
+            color: #ff3333;
+        }
+    </style>
+</head>
+<body>
+    <!-- EXACT SAME UI AS IMAGE -->
+    <header>
+        <button class="btn again">Again!</button>
+        <button class="leaderboard-btn">Leaderboard</button>
+        <p class="between">(Between 1 and 20)</p>
+        <h1>Guess My Number!</h1>
+        <div class="number">?</div>
+    </header>
+    
+    <main>
+        <section class="left">
+            <input type="number" class="guess" min="1" max="20">
+            <button class="btn check">Check!</button>
+        </section>
+        
+        <section class="right">
+            <p class="message">Start guessing...</p>
+            <p class="label-score">💯 Score: <span class="score">20</span></p>
+            <p class="label-highscore">🥇 Highscore: <span class="highscore">0</span></p>
+        </section>
+    </main>
+
+    <!-- Name Popup -->
+    <div class="popup" id="namePopup">
+        <div class="popup-content">
+            <button class="close-btn" id="closeName">×</button>
+            <h2>Enter Your Name</h2>
+            <p>Please enter your name to start playing the game:</p>
+            <input type="text" id="playerName" placeholder="Your Name" maxlength="20">
+            <button class="btn" id="startGame">Start Game</button>
+        </div>
+    </div>
+
+    <!-- Welcome Popup -->
+    <div class="popup" id="welcomePopup">
+        <div class="popup-content">
+            <button class="close-btn" id="closeWelcome">×</button>
+            <h2 id="welcomeTitle">Welcome!</h2>
+            <p id="welcomeMessage">Get ready to guess the number!</p>
+            <button class="btn" id="playGame">Let's Play!</button>
+        </div>
+    </div>
+
+    <!-- Leaderboard Popup -->
+    <div class="popup" id="leaderboardPopup">
+        <div class="popup-content">
+            <button class="close-btn" id="closeLeaderboard">×</button>
+            <h2>🏆 Leaderboard</h2>
+            
+            <div class="tabs">
+                <button class="tab active" data-tab="all-games">All Games</button>
+                <button class="tab" data-tab="top-scores">Top Scores</button>
+                <button class="tab" data-tab="by-player">By Player</button>
+            </div>
+            
+            <div id="all-games" class="tab-content">
+                <table class="leaderboard-table" id="allGamesTable">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Player</th>
+                            <th>Score</th>
+                            <th>Result</th>
+                            <th>Number</th>
+                            <th>Date</th>
+                            <th>Guesses</th>
+                        </tr>
+                    </thead>
+                    <tbody id="allGamesBody">
+                        <!-- All games will be populated here -->
+                    </tbody>
+                </table>
+                <div id="emptyAllGames" class="empty-leaderboard">
+                    No games played yet. Be the first to play!
+                </div>
+            </div>
+            
+            <div id="top-scores" class="tab-content" style="display: none;">
+                <table class="leaderboard-table" id="topScoresTable">
+                    <thead>
+                        <tr>
+                            <th>Rank</th>
+                            <th>Player</th>
+                            <th>Best Score</th>
+                            <th>Games Won</th>
+                            <th>Total Games</th>
+                        </tr>
+                    </thead>
+                    <tbody id="topScoresBody">
+                        <!-- Top scores will be populated here -->
+                    </tbody>
+                </table>
+                <div id="emptyTopScores" class="empty-leaderboard">
+                    No games played yet. Be the first to play!
+                </div>
+            </div>
+            
+            <div id="by-player" class="tab-content" style="display: none;">
+                <div style="margin-bottom: 2rem; text-align: center;">
+                    <input type="text" id="playerSearch" placeholder="Search player name..." style="width: 80%;">
+                </div>
+                <div id="playerStats">
+                    <!-- Player stats will be shown here -->
+                </div>
+                <div id="emptyPlayerStats" class="empty-leaderboard">
+                    Search for a player to see their stats
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        'use strict';
+
+        // DOM Elements - EXACTLY as in the image
+        const againBtn = document.querySelector('.again');
+        const checkBtn = document.querySelector('.check');
+        const guessInput = document.querySelector('.guess');
+        const message = document.querySelector('.message');
+        const scoreDisplay = document.querySelector('.score');
+        const highscoreDisplay = document.querySelector('.highscore');
+        const numberDisplay = document.querySelector('.number');
+        const leaderboardBtn = document.querySelector('.leaderboard-btn');
+        
+        // Popup elements
+        const namePopup = document.getElementById('namePopup');
+        const welcomePopup = document.getElementById('welcomePopup');
+        const leaderboardPopup = document.getElementById('leaderboardPopup');
+        const playerNameInput = document.getElementById('playerName');
+        const startGameBtn = document.getElementById('startGame');
+        const closeNameBtn = document.getElementById('closeName');
+        const closeWelcomeBtn = document.getElementById('closeWelcome');
+        const playGameBtn = document.getElementById('playGame');
+        const closeLeaderboardBtn = document.getElementById('closeLeaderboard');
+        const welcomeTitle = document.getElementById('welcomeTitle');
+        const welcomeMessage = document.getElementById('welcomeMessage');
+        
+        // Leaderboard elements
+        const tabs = document.querySelectorAll('.tab');
+        const tabContents = document.querySelectorAll('.tab-content');
+        const allGamesBody = document.getElementById('allGamesBody');
+        const topScoresBody = document.getElementById('topScoresBody');
+        const playerSearch = document.getElementById('playerSearch');
+        const playerStats = document.getElementById('playerStats');
+        const emptyAllGames = document.getElementById('emptyAllGames');
+        const emptyTopScores = document.getElementById('emptyTopScores');
+        const emptyPlayerStats = document.getElementById('emptyPlayerStats');
+
+        // Game variables
+        let secretNumber = Math.trunc(Math.random() * 20) + 1;
+        let score = 20;
+        let highscore = 0;
+        let playerName = '';
+        let gameActive = false;
+        let allGames = []; // Store ALL games
+        let currentGameGuesses = []; // Track guesses for current game
+        let gameStartTime = null;
+
+        // Initialize game
+        function init() {
+            // Load data from localStorage
+            loadGameData();
+            
+            // Show name popup first
+            namePopup.style.display = 'flex';
+            
+            // Event listeners
+            checkBtn.addEventListener('click', checkGuess);
+            againBtn.addEventListener('click', resetGame);
+            leaderboardBtn.addEventListener('click', showLeaderboard);
+            
+            // Popup buttons
+            startGameBtn.addEventListener('click', startGame);
+            closeNameBtn.addEventListener('click', () => namePopup.style.display = 'none');
+            closeWelcomeBtn.addEventListener('click', () => welcomePopup.style.display = 'none');
+            playGameBtn.addEventListener('click', () => {
+                welcomePopup.style.display = 'none';
+                gameActive = true;
+                gameStartTime = new Date();
+                guessInput.focus();
+            });
+            closeLeaderboardBtn.addEventListener('click', () => leaderboardPopup.style.display = 'none');
+            
+            // Tab switching
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    const tabId = tab.dataset.tab;
+                    switchTab(tabId);
+                });
+            });
+            
+            // Player search
+            playerSearch.addEventListener('input', updatePlayerStats);
+            
+            // Enter key support
+            playerNameInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') startGame();
+            });
+            
+            guessInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') checkGuess();
+            });
+            
+            // Close popups when clicking outside
+            [namePopup, welcomePopup, leaderboardPopup].forEach(popup => {
+                popup.addEventListener('click', (e) => {
+                    if (e.target === popup) {
+                        popup.style.display = 'none';
+                    }
+                });
+            });
+        }
+
+        // Start game with player name
+        function startGame() {
+            const name = playerNameInput.value.trim();
+            
+            if (!name) {
+                alert('Please enter your name!');
+                return;
+            }
+            
+            playerName = name;
+            
+            // Close name popup
+            namePopup.style.display = 'none';
+            
+            // Show welcome popup with player name
+            welcomeTitle.textContent = `Welcome, ${playerName}!`;
+            welcomeMessage.textContent = `Try to guess the secret number between 1 and 20. You start with 20 points. Good luck!`;
+            welcomePopup.style.display = 'flex';
+            
+            // Enable game
+            gameActive = true;
+            guessInput.disabled = false;
+            checkBtn.disabled = false;
+            
+            // Generate new secret number
+            secretNumber = Math.trunc(Math.random() * 20) + 1;
+            console.log('Secret number:', secretNumber);
+            
+            // Reset for new game
+            score = 20;
+            scoreDisplay.textContent = score;
+            numberDisplay.textContent = '?';
+            numberDisplay.style.backgroundColor = '#eee';
+            numberDisplay.style.color = '#333';
+            message.textContent = 'Start guessing...';
+            guessInput.value = '';
+            currentGameGuesses = [];
+            gameStartTime = null;
+        }
+
+        // Check player's guess
+        function checkGuess() {
+            if (!gameActive) return;
+            
+            if (!gameStartTime) gameStartTime = new Date();
+            
+            const guess = Number(guessInput.value);
+            
+            // When there is no input
+            if (!guess) {
+                message.textContent = '⛔️ No number!';
+                return;
+            }
+            
+            // Track this guess
+            currentGameGuesses.push(guess);
+            
+            // When player wins
+            if (guess === secretNumber) {
+                gameWon();
+                return;
+            }
+            
+            // When guess is wrong
+            if (guess !== secretNumber) {
+                if (score > 1) {
+                    message.textContent = guess > secretNumber ? '📈 Too high!' : '📉 Too low!';
+                    score--;
+                    scoreDisplay.textContent = score;
+                } else {
+                    gameLost();
+                }
+            }
+            
+            guessInput.value = '';
+            guessInput.focus();
+        }
+
+        // Player wins
+        function gameWon() {
+            gameActive = false;
+            message.textContent = '🎉 Correct Number!';
+            numberDisplay.textContent = secretNumber;
+            numberDisplay.style.backgroundColor = '#60b347';
+            numberDisplay.style.color = '#fff';
+            
+            // Update highscore
+            if (score > highscore) {
+                highscore = score;
+                highscoreDisplay.textContent = highscore;
+                localStorage.setItem('highscore', highscore);
+            }
+            
+            // Save game to all games
+            saveGame('win');
+            
+            // Disable input
+            guessInput.disabled = true;
+            checkBtn.disabled = true;
+        }
+
+        // Game over
+        function gameLost() {
+            gameActive = false;
+            score = 0;
+            scoreDisplay.textContent = score;
+            message.textContent = '💥 You lost the game!';
+            numberDisplay.textContent = secretNumber;
+            numberDisplay.style.backgroundColor = '#ff3333';
+            numberDisplay.style.color = '#fff';
+            
+            // Save game to all games
+            saveGame('lose');
+            
+            // Disable input
+            guessInput.disabled = true;
+            checkBtn.disabled = true;
+        }
+
+        // Save game to all games
+        function saveGame(result) {
+            const gameTime = Math.round((new Date() - gameStartTime) / 1000); // in seconds
+            
+            const game = {
+                id: Date.now(),
+                player: playerName,
+                score: score,
+                result: result,
+                secretNumber: secretNumber,
+                guesses: [...currentGameGuesses],
+                guessesCount: currentGameGuesses.length,
+                gameTime: gameTime,
+                date: new Date().toLocaleString()
+            };
+            
+            // Add to all games
+            allGames.push(game);
+            
+            // Save to localStorage
+            localStorage.setItem('allGames', JSON.stringify(allGames));
+        }
+
+        // Reset game
+        function resetGame() {
+            if (!playerName) {
+                namePopup.style.display = 'flex';
+                return;
+            }
+            
+            // Generate new secret number
+            secretNumber = Math.trunc(Math.random() * 20) + 1;
+            console.log('New secret number:', secretNumber);
+            
+            // Reset score and UI
+            score = 20;
+            scoreDisplay.textContent = score;
+            numberDisplay.textContent = '?';
+            numberDisplay.style.backgroundColor = '#eee';
+            numberDisplay.style.color = '#333';
+            message.textContent = 'Start guessing...';
+            guessInput.value = '';
+            guessInput.disabled = false;
+            checkBtn.disabled = false;
+            gameActive = true;
+            currentGameGuesses = [];
+            gameStartTime = null;
+            
+            // Focus on input
+            guessInput.focus();
+        }
+
+        // Load game data from localStorage
+        function loadGameData() {
+            // Load highscore
+            const savedHighscore = localStorage.getItem('highscore');
+            if (savedHighscore) {
+                highscore = Number(savedHighscore);
+                highscoreDisplay.textContent = highscore;
+            }
+            
+            // Load all games
+            const savedGames = localStorage.getItem('allGames');
+            if (savedGames) {
+                allGames = JSON.parse(savedGames);
+            }
+        }
+
+        // Show leaderboard
+        function showLeaderboard() {
+            // Update leaderboard display
+            updateLeaderboard();
+            
+            // Show popup
+            leaderboardPopup.style.display = 'flex';
+        }
+
+        // Switch between tabs
+        function switchTab(tabId) {
+            // Update active tab
+            tabs.forEach(tab => {
+                if (tab.dataset.tab === tabId) {
+                    tab.classList.add('active');
+                } else {
+                    tab.classList.remove('active');
+                }
+            });
+            
+            // Show active tab content
+            tabContents.forEach(content => {
+                if (content.id === tabId) {
+                    content.style.display = 'block';
+                } else {
+                    content.style.display = 'none';
+                }
+            });
+            
+            // Update content for the selected tab
+            if (tabId === 'all-games') {
+                updateAllGamesTable();
+            } else if (tabId === 'top-scores') {
+                updateTopScoresTable();
+            } else if (tabId === 'by-player') {
+                updatePlayerStats();
+            }
+        }
+
+        // Update all games table
+        function updateAllGamesTable() {
+            allGamesBody.innerHTML = '';
+            
+            if (allGames.length === 0) {
+                emptyAllGames.style.display = 'block';
+                return;
+            }
+            
+            emptyAllGames.style.display = 'none';
+            
+            // Show games in reverse chronological order (newest first)
+            const reversedGames = [...allGames].reverse();
+            
+            reversedGames.forEach((game, index) => {
+                const row = document.createElement('tr');
+                
+                const resultClass = game.result === 'win' ? 'win' : 'lose';
+                const resultText = game.result === 'win' ? '🏆 Win' : '💥 Lose';
+                
+                row.innerHTML = `
+                    <td>${allGames.length - index}</td>
+                    <td>${game.player}</td>
+                    <td>${game.score}</td>
+                    <td class="${resultClass}">${resultText}</td>
+                    <td>${game.secretNumber}</td>
+                    <td>${game.date}</td>
+                    <td>${game.guessesCount}</td>
+                `;
+                
+                allGamesBody.appendChild(row);
+            });
+        }
+
+        // Update top scores table
+        function updateTopScoresTable() {
+            topScoresBody.innerHTML = '';
+            
+            if (allGames.length === 0) {
+                emptyTopScores.style.display = 'block';
+                return;
+            }
+            
+            emptyTopScores.style.display = 'none';
+            
+            // Calculate player stats
+            const playerStatsMap = {};
+            
+            allGames.forEach(game => {
+                if (!playerStatsMap[game.player]) {
+                    playerStatsMap[game.player] = {
+                        name: game.player,
+                        bestScore: 0,
+                        gamesWon: 0,
+                        totalGames: 0
+                    };
+                }
+                
+                playerStatsMap[game.player].totalGames++;
+                
+                if (game.result === 'win') {
+                    playerStatsMap[game.player].gamesWon++;
+                    
+                    if (game.score > playerStatsMap[game.player].bestScore) {
+                        playerStatsMap[game.player].bestScore = game.score;
+                    }
+                }
+            });
+            
+            // Convert to array and sort by best score
+            const players = Object.values(playerStatsMap)
+                .filter(p => p.bestScore > 0) // Only include players with wins
+                .sort((a, b) => b.bestScore - a.bestScore);
+            
+            // Display top players
+            players.forEach((player, index) => {
+                const row = document.createElement('tr');
+                
+                // Add trophy emoji for top 3
+                let trophy = '';
+                if (index === 0) trophy = ' 🥇';
+                else if (index === 1) trophy = ' 🥈';
+                else if (index === 2) trophy = ' 🥉';
+                
+                row.innerHTML = `
+                    <td>${index + 1}</td>
+                    <td>${player.name}${trophy}</td>
+                    <td>${player.bestScore}</td>
+                    <td>${player.gamesWon}</td>
+                    <td>${player.totalGames}</td>
+                `;
+                
+                topScoresBody.appendChild(row);
+            });
+        }
+
+        // Update player stats
+        function updatePlayerStats() {
+            const searchTerm = playerSearch.value.trim().toLowerCase();
+            
+            if (!searchTerm) {
+                playerStats.innerHTML = '';
+                emptyPlayerStats.style.display = 'block';
+                return;
+            }
+            
+            // Find games by player
+            const playerGames = allGames.filter(game => 
+                game.player.toLowerCase().includes(searchTerm)
+            );
+            
+            if (playerGames.length === 0) {
+                playerStats.innerHTML = '';
+                emptyPlayerStats.style.display = 'block';
+                emptyPlayerStats.textContent = 'No games found for this player';
+                return;
+            }
+            
+            emptyPlayerStats.style.display = 'none';
+            
+            // Calculate stats for this player
+            const wins = playerGames.filter(g => g.result === 'win').length;
+            const losses = playerGames.filter(g => g.result === 'lose').length;
+            const totalGames = playerGames.length;
+            const winRate = totalGames > 0 ? Math.round((wins / totalGames) * 100) : 0;
+            const bestScore = Math.max(...playerGames.map(g => g.score));
+            const avgScore = Math.round(playerGames.reduce((sum, g) => sum + g.score, 0) / totalGames);
+            const totalGuesses = playerGames.reduce((sum, g) => sum + g.guessesCount, 0);
+            const avgGuesses = Math.round(totalGuesses / totalGames);
+            
+            // Get player name (use first matching game's player name)
+            const playerName = playerGames[0].player;
+            
+            // Create stats display
+            playerStats.innerHTML = `
+                <div style="text-align: center; margin-bottom: 2rem;">
+                    <h3 style="font-size: 2rem; margin-bottom: 1rem;">Player: ${playerName}</h3>
+                    <div style="display: flex; justify-content: center; gap: 3rem; flex-wrap: wrap; margin-bottom: 2rem;">
+                        <div style="text-align: center;">
+                            <div style="font-size: 3rem; color: #60b347;">${wins}</div>
+                            <div>Wins</div>
+                        </div>
+                        <div style="text-align: center;">
+                            <div style="font-size: 3rem; color: #ff3333;">${losses}</div>
+                            <div>Losses</div>
+                        </div>
+                        <div style="text-align: center;">
+                            <div style="font-size: 3rem; color: #eee;">${totalGames}</div>
+                            <div>Total Games</div>
+                        </div>
+                        <div style="text-align: center;">
+                            <div style="font-size: 3rem; color: #ffcc00;">${winRate}%</div>
+                            <div>Win Rate</div>
+                        </div>
+                    </div>
+                    <div style="display: flex; justify-content: center; gap: 3rem; flex-wrap: wrap;">
+                        <div style="text-align: center;">
+                            <div style="font-size: 2rem; color: #4CAF50;">${bestScore}</div>
+                            <div>Best Score</div>
+                        </div>
+                        <div style="text-align: center;">
+                            <div style="font-size: 2rem; color: #eee;">${avgScore}</div>
+                            <div>Avg Score</div>
+                        </div>
+                        <div style="text-align: center;">
+                            <div style="font-size: 2rem; color: #2196F3;">${avgGuesses}</div>
+                            <div>Avg Guesses</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <h4 style="font-size: 1.6rem; margin: 2rem 0 1rem 0; text-align: center;">Recent Games:</h4>
+                <table class="leaderboard-table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Score</th>
+                            <th>Result</th>
+                            <th>Number</th>
+                            <th>Guesses</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${playerGames.slice(-10).reverse().map(game => `
+                            <tr>
+                                <td>${game.date}</td>
+                                <td>${game.score}</td>
+                                <td class="${game.result === 'win' ? 'win' : 'lose'}">${game.result === 'win' ? '🏆 Win' : '💥 Lose'}</td>
+                                <td>${game.secretNumber}</td>
+                                <td>${game.guessesCount}</td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+        }
+
+        // Update entire leaderboard
+        function updateLeaderboard() {
+            updateAllGamesTable();
+            updateTopScoresTable();
+            updatePlayerStats();
+        }
+
+        // Initialize game when page loads
+        window.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
